@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/mayerkv/go-auth/grpc-service;grpc_service";
+
+service AuthService {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {}
+}
+
+message CreateAccountRequest {
+  string email = 1;
+  string password = 2;
+  string userId = 3;
+  AccountRole Role = 4;
+}
+
+enum AccountRole {
+  USER = 0;
+  ADMIN = 1;
+}
+
+message CreateAccountResponse {}
