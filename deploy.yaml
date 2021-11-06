@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: go-auth:latest
+          image: kvmayer/go-auth:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9090
