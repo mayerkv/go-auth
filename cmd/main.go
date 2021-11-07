@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/mayerkv/go-auth/domain"
 	"github.com/mayerkv/go-auth/grpc-service"
 	"github.com/mayerkv/go-auth/http-service"
@@ -26,6 +27,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	jwkKey, err := jwk.New(privateKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	authConfig := domain.NewAuthConfig(privateKey, jwt.SigningMethodPS256, "auth-service", 15*time.Minute, 24*time.Hour)
 
 	accountRepository := repository.NewInMemoryAccountRepository()
@@ -39,7 +45,7 @@ func main() {
 	srv := grpc_service.NewAuthServiceServerImpl(accountService)
 
 	g := newGroup()
-	runHttpSever(g, authService)
+	runHttpSever(g, authService, jwkKey)
 	runGrpcServer(g, srv)
 	runGraceful(g)
 
@@ -64,9 +70,10 @@ func runGraceful(g *group) {
 	})
 }
 
-func runHttpSever(g *group, authService *domain.AuthService) {
-	controller := http_service.NewAuthController(authService)
-	router := http_service.CreateRouter(controller, authService)
+func runHttpSever(g *group, authService *domain.AuthService, key jwk.Key) {
+	authController := http_service.NewAuthController(authService)
+	jwksController := http_service.NewJWKSController(key)
+	router := http_service.CreateRouter(authController, authService, jwksController)
 
 	srv := &http.Server{
 		Addr:    ":8080",

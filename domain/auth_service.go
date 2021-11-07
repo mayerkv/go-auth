@@ -35,14 +35,14 @@ func (s *AuthService) SignIn(dto SignInDto) (string, string, error) {
 	}
 
 	now := time.Now()
-	accessToken := s.createToken(now, account, TokenTypeAccess, s.authConfig.accessDuration)
-	refreshToken := s.createToken(now, account, TokenTypeRefresh, s.authConfig.refreshDuration)
+	accessToken := s.createToken(now, account, TokenTypeAccess, s.authConfig.AccessDuration)
+	refreshToken := s.createToken(now, account, TokenTypeRefresh, s.authConfig.RefreshDuration)
 
-	access, err := accessToken.SignedString(s.authConfig.rsaPrivateKey)
+	access, err := accessToken.SignedString(s.authConfig.RsaPrivateKey)
 	if err != nil {
 		return "", "", err
 	}
-	refresh, err := refreshToken.SignedString(s.authConfig.rsaPrivateKey)
+	refresh, err := refreshToken.SignedString(s.authConfig.RsaPrivateKey)
 	if err != nil {
 		return "", "", err
 	}
@@ -65,14 +65,14 @@ func (s *AuthService) Refresh(dto RefreshDto) (string, error) {
 		return "", err
 	}
 
-	accessToken := s.createToken(time.Now(), account, TokenTypeAccess, s.authConfig.accessDuration)
+	accessToken := s.createToken(time.Now(), account, TokenTypeAccess, s.authConfig.AccessDuration)
 
-	return accessToken.SignedString(s.authConfig.rsaPrivateKey)
+	return accessToken.SignedString(s.authConfig.RsaPrivateKey)
 }
 
 func (s *AuthService) Parse(token string) (*AuthClaims, error) {
 	t, err := jwt.ParseWithClaims(token, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return s.authConfig.rsaPrivateKey.Public(), nil
+		return s.authConfig.RsaPrivateKey.Public(), nil
 	})
 
 	if err != nil {
@@ -100,12 +100,12 @@ func (s *AuthService) getAccount(login string) (*Account, error) {
 }
 
 func (s *AuthService) createToken(t time.Time, a *Account, tokenType TokenType, d time.Duration) *jwt.Token {
-	return jwt.NewWithClaims(s.authConfig.method, AuthClaims{
+	return jwt.NewWithClaims(s.authConfig.Method, AuthClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        uuid.NewString(),
 			IssuedAt:  jwt.NewNumericDate(t),
 			ExpiresAt: jwt.NewNumericDate(t.Add(d)),
-			Issuer:    s.authConfig.issuer,
+			Issuer:    s.authConfig.Issuer,
 			Subject:   a.Login,
 		},
 		UserId: a.UserId,

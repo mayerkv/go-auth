@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func CreateRouter(controller *AuthController, service *domain.AuthService) *gin.Engine {
+func CreateRouter(authController *AuthController, service *domain.AuthService, jwksController *JWKSController) *gin.Engine {
 	r := gin.Default()
 
 	mediaTypeMiddleware := MediaTypeMiddleware()
@@ -14,14 +14,16 @@ func CreateRouter(controller *AuthController, service *domain.AuthService) *gin.
 
 	authGroup := r.Group("/auth")
 	{
-		authGroup.POST("/sign-in", mediaTypeMiddleware, controller.SignIn)
-		authGroup.POST("/refresh", mediaTypeMiddleware, controller.Refresh)
-		authGroup.GET("/profile", authMiddleware, controller.Profile)
+		authGroup.POST("/sign-in", mediaTypeMiddleware, authController.SignIn)
+		authGroup.POST("/refresh", mediaTypeMiddleware, authController.Refresh)
+		authGroup.GET("/profile", authMiddleware, authController.Profile)
 	}
 
 	r.GET("/health", func(context *gin.Context) {
 		context.Status(http.StatusOK)
 	})
+
+	r.GET(".well-known/jwks.json", jwksController.Keys)
 
 	return r
 }
