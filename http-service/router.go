@@ -7,10 +7,11 @@ import (
 )
 
 func CreateRouter(authController *AuthController, service *domain.AuthService, jwksController *JWKSController) *gin.Engine {
-	r := gin.Default()
-
 	mediaTypeMiddleware := MediaTypeMiddleware()
 	authMiddleware := AuthMiddleware(service)
+
+	r := gin.Default()
+	r.NoRoute(authMiddleware, authController.Auth)
 
 	authGroup := r.Group("/auth")
 	{

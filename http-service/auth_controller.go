@@ -71,3 +71,21 @@ func (c *AuthController) Profile(ctx *gin.Context) {
 		"login":   claims.Login,
 	})
 }
+
+func (c *AuthController) Auth(ctx *gin.Context) {
+	value, exists := ctx.Get("authClaims")
+	if !exists {
+		ctx.Status(http.StatusUnauthorized)
+		return
+	}
+
+	claims, ok := value.(*domain.AuthClaims)
+	if !ok {
+		ctx.Status(http.StatusUnauthorized)
+		return
+	}
+
+	ctx.Header("x-user-id", claims.UserId)
+	ctx.Header("x-user-login", claims.Login)
+	ctx.Status(http.StatusOK)
+}
