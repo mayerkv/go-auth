@@ -1,12 +1,13 @@
 package http_service
 
 import (
+	"io"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/mayerkv/go-auth/domain"
-	"io"
-	"net/http"
+	"github.com/mayerkv/go-auth/internal/domain"
 )
 
 func handleError(ctx *gin.Context, err error) {
@@ -34,8 +35,10 @@ func handleError(ctx *gin.Context, err error) {
 		code = http.StatusUnauthorized
 	}
 
-	ctx.JSON(code, gin.H{
-		"error": message,
-		"code":  code,
-	})
+	ctx.JSON(
+		code, gin.H{
+			"error": message,
+			"code":  code,
+		},
+	)
 }

@@ -2,10 +2,11 @@ package http_service
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/mayerkv/go-auth/domain"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	domain2 "github.com/mayerkv/go-auth/internal/domain"
 )
 
 var (
@@ -25,7 +26,7 @@ func MediaTypeMiddleware() gin.HandlerFunc {
 	}
 }
 
-func AuthMiddleware(authService *domain.AuthService) gin.HandlerFunc {
+func AuthMiddleware(authService *domain2.AuthService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenHeader := ctx.GetHeader("authorization")
 		if !strings.HasPrefix(tokenHeader, "Bearer ") {
@@ -39,8 +40,8 @@ func AuthMiddleware(authService *domain.AuthService) gin.HandlerFunc {
 			return
 		}
 
-		if claims.Type != domain.TokenTypeAccess {
-			handleError(ctx, domain.ErrInvalidTokenType)
+		if claims.Type != domain2.TokenTypeAccess {
+			handleError(ctx, domain2.ErrInvalidTokenType)
 			return
 		}
 

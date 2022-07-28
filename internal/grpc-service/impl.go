@@ -2,18 +2,22 @@ package grpc_service
 
 import (
 	"context"
-	"github.com/mayerkv/go-auth/domain"
+
+	domain2 "github.com/mayerkv/go-auth/internal/domain"
 )
 
 type AuthServiceServerImpl struct {
-	accountService *domain.AccountService
+	accountService *domain2.AccountService
 }
 
-func NewAuthServiceServerImpl(accountService *domain.AccountService) *AuthServiceServerImpl {
+func NewAuthServiceServerImpl(accountService *domain2.AccountService) *AuthServiceServerImpl {
 	return &AuthServiceServerImpl{accountService: accountService}
 }
 
-func (s *AuthServiceServerImpl) CreateAccount(ctx context.Context, request *CreateAccountRequest) (*CreateAccountResponse, error) {
+func (s *AuthServiceServerImpl) CreateAccount(
+	ctx context.Context,
+	request *CreateAccountRequest,
+) (*CreateAccountResponse, error) {
 	err := s.accountService.CreateAccount(request.Email, request.Password, request.UserId, mapAccountRole(request.Role))
 	if err != nil {
 		return nil, err
@@ -22,13 +26,13 @@ func (s *AuthServiceServerImpl) CreateAccount(ctx context.Context, request *Crea
 	return &CreateAccountResponse{}, nil
 }
 
-func mapAccountRole(role AccountRole) domain.AccountRole {
+func mapAccountRole(role AccountRole) domain2.AccountRole {
 	switch role {
 	case AccountRole_ADMIN:
-		return domain.AccountRoleAdmin
+		return domain2.AccountRoleAdmin
 	}
 
-	return domain.AccountRoleUser
+	return domain2.AccountRoleUser
 }
 
 func (s *AuthServiceServerImpl) mustEmbedUnimplementedAuthServiceServer() {

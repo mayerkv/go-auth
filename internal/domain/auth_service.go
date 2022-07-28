@@ -2,16 +2,18 @@ package domain
 
 import (
 	"errors"
+	"time"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"time"
 )
 
 var (
-	ErrAccountNotExists = errors.New("account not exists")
-	ErrInvalidPassword  = errors.New("invalid password")
-	ErrInvalidToken     = errors.New("invalid token")
-	ErrInvalidTokenType = errors.New("invalid token type")
+	ErrAccountNotExists  = errors.New("account not exists")
+	ErrInvalidPassword   = errors.New("invalid password")
+	ErrInvalidToken      = errors.New("invalid token")
+	ErrInvalidTokenType  = errors.New("invalid token type")
+	ErrLoginAlreadyTaken = errors.New("login already taken")
 )
 
 type AuthService struct {
@@ -20,7 +22,11 @@ type AuthService struct {
 	authConfig        AuthConfig
 }
 
-func NewAuthService(accountRepository AccountRepository, passwordEncoder PasswordEncoder, authConfig AuthConfig) *AuthService {
+func NewAuthService(
+	accountRepository AccountRepository,
+	passwordEncoder PasswordEncoder,
+	authConfig AuthConfig,
+) *AuthService {
 	return &AuthService{accountRepository: accountRepository, passwordEncoder: passwordEncoder, authConfig: authConfig}
 }
 
@@ -71,9 +77,11 @@ func (s *AuthService) Refresh(dto RefreshDto) (string, error) {
 }
 
 func (s *AuthService) Parse(token string) (*AuthClaims, error) {
-	t, err := jwt.ParseWithClaims(token, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return s.authConfig.RsaPrivateKey.Public(), nil
-	})
+	t, err := jwt.ParseWithClaims(
+		token, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return s.authConfig.RsaPrivateKey.Public(), nil
+		},
+	)
 
 	if err != nil {
 		return nil, err
@@ -100,17 +108,19 @@ func (s *AuthService) getAccount(login string) (*Account, error) {
 }
 
 func (s *AuthService) createToken(t time.Time, a *Account, tokenType TokenType, d time.Duration) *jwt.Token {
-	return jwt.NewWithClaims(s.authConfig.Method, AuthClaims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        uuid.NewString(),
-			IssuedAt:  jwt.NewNumericDate(t),
-			ExpiresAt: jwt.NewNumericDate(t.Add(d)),
-			Issuer:    s.authConfig.Issuer,
-			Subject:   a.Login,
+	return jwt.NewWithClaims(
+		s.authConfig.Method, AuthClaims{
+			RegisteredClaims: jwt.RegisteredClaims{
+				ID:        uuid.NewString(),
+				IssuedAt:  jwt.NewNumericDate(t),
+				ExpiresAt: jwt.NewNumericDate(t.Add(d)),
+				Issuer:    s.authConfig.Issuer,
+				Subject:   a.Login,
+			},
+			UserId: a.UserId,
+			Login:  a.Login,
+			Type:   tokenType,
+			Role:   a.Role,
 		},
-		UserId: a.UserId,
-		Login:  a.Login,
-		Type:   tokenType,
-		Role:   a.Role,
-	})
+	)
 }

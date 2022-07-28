@@ -2,8 +2,9 @@ package domain
 
 import (
 	"crypto/rsa"
-	"github.com/golang-jwt/jwt/v4"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type AuthConfig struct {
@@ -14,6 +15,12 @@ type AuthConfig struct {
 	RefreshDuration time.Duration
 }
 
-func NewAuthConfig(rsaPrivateKey *rsa.PrivateKey, method jwt.SigningMethod, issuer string, accessDuration time.Duration, refreshDuration time.Duration) *AuthConfig {
+func NewAuthConfig(
+	rsaPrivateKey *rsa.PrivateKey,
+	method jwt.SigningMethod,
+	issuer string,
+	accessDuration time.Duration,
+	refreshDuration time.Duration,
+) *AuthConfig {
 	return &AuthConfig{RsaPrivateKey: rsaPrivateKey, Method: method, Issuer: issuer, AccessDuration: accessDuration, RefreshDuration: refreshDuration}
 }

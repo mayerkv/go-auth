@@ -1,9 +1,10 @@
 package http_service
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/jwk"
-	"net/http"
 )
 
 type JWKSController struct {
@@ -15,9 +16,11 @@ func NewJWKSController(jwkKey jwk.Key) *JWKSController {
 }
 
 func (c *JWKSController) Keys(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		"keys": []jwk.Key{
-			c.jwkKey,
+	ctx.JSON(
+		http.StatusOK, gin.H{
+			"keys": []jwk.Key{
+				c.jwkKey,
+			},
 		},
-	})
+	)
 }

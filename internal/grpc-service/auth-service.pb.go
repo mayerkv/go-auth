@@ -7,11 +7,12 @@
 package grpc_service
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -78,8 +79,8 @@ type CreateAccountRequest struct {
 
 	Email    string      `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Password string      `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	UserId   string      `protobuf:"bytes,3,opt,name=userId,proto3" json:"userId,omitempty"`
-	Role     AccountRole `protobuf:"varint,4,opt,name=Role,proto3,enum=AccountRole" json:"Role,omitempty"`
+	UserId string      `protobuf:"bytes,3,opt,name=userId,proto3" json:"userId,omitempty"`
+	Role   AccountRole `protobuf:"varint,4,opt,name=Role,proto3,enum=AccountRole" json:"Role,omitempty"`
 }
 
 func (x *CreateAccountRequest) Reset() {
